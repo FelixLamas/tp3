@@ -29,7 +29,6 @@ typedef struct Cliente {
 
 int ControlCantClientes(void);
 void CargarClientes(Cliente *arreglo,int Cant, char **tipoP);
-void CargarProductos(Producto *arregloP, int cantProd, char *tipoP);
 void mostrarPedidoCliente(Cliente *arregloC, int cantc);
 int costoTotalProducto(Producto prod);
 int main(int argc, char const *argv[])
@@ -41,9 +40,6 @@ int main(int argc, char const *argv[])
     arregloCliente = (Cliente *)malloc(sizeof(Cliente)* CantClientes);
     CargarClientes(arregloCliente, CantClientes, TiposProductos);
     mostrarPedidoCliente(arregloCliente, CantClientes);
-
-    free(arregloCliente->Productos->TipoProducto);
-    free(arregloCliente->NombreCliente);
     free(arregloCliente);
     return 0;
 }
@@ -88,21 +84,9 @@ void CargarClientes(Cliente *arreglo,int Cant, char **tipoP)
             arreglo[i].Productos[j].PrecioUnitario = 10 + rand() % 90;
         }
         
-        //CargarProductos(arreglo[i].Productos, cantProd, tipoP);
     }    
 }
 
-void CargarProductos(Producto *arregloP, int cantProd, char *tipoP)
-{
-    for (int i = 0; i < cantProd; i++)
-    {
-        arregloP[i].ProductoID = i + 1;
-        arregloP[i].Cantidad = 1 + rand() % 10;
-        arregloP[i].TipoProducto = tipoP[(rand() % 5)];
-        arregloP[i].PrecioUnitario = 10 + rand() % 100;
-    }
-    
-}
 
 void mostrarPedidoCliente(Cliente *arregloC, int cantc)
 {
@@ -120,8 +104,10 @@ void mostrarPedidoCliente(Cliente *arregloC, int cantc)
             printf("Tipo de producto: %s\n", arregloC[i].Productos[j].TipoProducto);
             printf("precio unitario del producto:%d\n", arregloC[i].Productos[j].PrecioUnitario);
             total = total + costoTotalProducto(arregloC[i].Productos[j]);
+            free(arregloC[i].Productos[j].TipoProducto);
         }
         printf("El costo total de los productos es:%d\n", total);
+        free(arregloC[i].NombreCliente);
     }
     
 }
