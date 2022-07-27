@@ -30,7 +30,8 @@ typedef struct Cliente {
 int ControlCantClientes(void);
 void CargarClientes(Cliente *arreglo,int Cant, char **tipoP);
 void CargarProductos(Producto *arregloP, int cantProd, char *tipoP);
-
+void mostrarPedidoCliente(Cliente *arregloC, int cantc);
+int costoTotalProducto(Producto prod);
 int main(int argc, char const *argv[])
 {
     char *TiposProductos[]={"Galletas","Snack","Cigarrillos","Caramelos","Bebidas"};
@@ -39,6 +40,11 @@ int main(int argc, char const *argv[])
     Cliente *arregloCliente;
     arregloCliente = (Cliente *)malloc(sizeof(Cliente)* CantClientes);
     CargarClientes(arregloCliente, CantClientes, TiposProductos);
+    mostrarPedidoCliente(arregloCliente, CantClientes);
+
+    free(arregloCliente->Productos->TipoProducto);
+    free(arregloCliente->NombreCliente);
+    free(arregloCliente);
     return 0;
 }
 
@@ -59,7 +65,7 @@ int ControlCantClientes(void)
 
 void CargarClientes(Cliente *arreglo,int Cant, char **tipoP)
 {
-    char buff[100];
+    char buff[100], buffP[12];
     int cantProd = 0;
     srand(time(NULL));
     for (int i = 0; i < Cant; i++)
@@ -74,13 +80,12 @@ void CargarClientes(Cliente *arreglo,int Cant, char **tipoP)
         arreglo[i].Productos = (Producto *)malloc(sizeof(Producto) * cantProd);
         for (int j = 0; j < cantProd; j++)
         {
-            arreglo[i].Productos->ProductoID = (j + 1);
-            arreglo[i].Productos->Cantidad = 1 + rand() % 10;
-            //arreglo[i].Productos->TipoProducto[j] =(char*) malloc(sizeof(char)* strlen(tipoP[rand()+4]));
-            //arreglo[i].Productos[j].TipoProducto = (char*) malloc(sizeof(char)* strlen(tipoP[rand()+4][11]));
-            puts(tipoP[(rand() % 4)][11]);
-            arreglo[i].Productos->PrecioUnitario = 10 + rand() % 90;
-            printf("%s", arreglo[i].Productos->TipoProducto);
+            arreglo[i].Productos[j].ProductoID = (j + 1);
+            arreglo[i].Productos[j].Cantidad = 1 + rand() % 10;
+            strcpy(buffP, *(tipoP + (rand() % 4)));
+            arreglo[i].Productos[j].TipoProducto =(char*) malloc(sizeof(char)* strlen(buffP));
+            strcpy(arreglo[i].Productos[j].TipoProducto, buffP);
+            arreglo[i].Productos[j].PrecioUnitario = 10 + rand() % 90;
         }
         
         //CargarProductos(arreglo[i].Productos, cantProd, tipoP);
@@ -97,4 +102,31 @@ void CargarProductos(Producto *arregloP, int cantProd, char *tipoP)
         arregloP[i].PrecioUnitario = 10 + rand() % 100;
     }
     
+}
+
+void mostrarPedidoCliente(Cliente *arregloC, int cantc)
+{
+    int total;
+    for (int i = 0; i < cantc; i++)
+    {
+        total = 0;
+        printf("Id del cliente: %d\n", arregloC[i].ClienteID);
+        printf("El nombre del cliente: %s\n", arregloC[i].NombreCliente);
+        printf("Cantidad de productos %d\n", arregloC[i].CantidadProductosAPedir);
+        for (int j = 0; j < arregloC[i].CantidadProductosAPedir; j++)
+        {
+            printf("id del producto:%d\n", arregloC[i].Productos[j].ProductoID);
+            printf("cantidad del producto:%d\n", arregloC[i].Productos[j].Cantidad);
+            printf("Tipo de producto: %s\n", arregloC[i].Productos[j].TipoProducto);
+            printf("precio unitario del producto:%d\n", arregloC[i].Productos[j].PrecioUnitario);
+            total = total + costoTotalProducto(arregloC[i].Productos[j]);
+        }
+        printf("El costo total de los productos es:%d\n", total);
+    }
+    
+}
+
+int costoTotalProducto(Producto prod)
+{
+    return prod.Cantidad * prod.PrecioUnitario;
 }
